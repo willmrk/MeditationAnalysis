@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#14201a" />
+<meta name="description" content="Meditation Analysis — a simple meditation timer that helps you track and gently return your attention." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Meditation Analysis" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<link rel="icon" href="icons/icon-192.png" />
+<title>Meditation Analysis</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="app">
+
+  <!-- SETUP SCREEN -->
+  <section id="screen-setup" class="screen active">
+    <header class="setup-header">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <h1>Meditation Analysis</h1>
+      </div>
+      <button id="btn-history" class="history-btn" aria-label="View session history">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M13 3a9 9 0 1 0 8.94 10H19.9A7 7 0 1 1 13 5v4l5-4.5L13 0v3Z"/></svg>
+        <span>History</span>
+      </button>
+    </header>
+
+    <p class="tagline">Sit. Breathe. Return, gently, every time you drift.</p>
+
+    <div class="setup-card">
+      <div class="field">
+        <label>Session length</label>
+        <div class="stepper">
+          <button class="stepper-btn" data-action="dur-dec" aria-label="Decrease duration">–</button>
+          <div class="stepper-value"><span id="duration-value">10</span> <span class="unit">min</span></div>
+          <button class="stepper-btn" data-action="dur-inc" aria-label="Increase duration">+</button>
+        </div>
+        <div class="presets" id="duration-presets">
+          <button class="preset" data-min="5">5</button>
+          <button class="preset" data-min="10">10</button>
+          <button class="preset" data-min="15">15</button>
+          <button class="preset" data-min="20">20</button>
+          <button class="preset" data-min="30">30</button>
+        </div>
+      </div>
+
+      <div class="field toggle-field">
+        <label for="gong-toggle">Interval gong</label>
+        <button id="gong-toggle" class="toggle" role="switch" aria-checked="false">
+          <span class="toggle-knob"></span>
+        </button>
+      </div>
+
+      <div class="field" id="interval-field" hidden>
+        <label>Ring every</label>
+        <div class="stepper">
+          <button class="stepper-btn" data-action="int-dec" aria-label="Decrease interval">–</button>
+          <div class="stepper-value"><span id="interval-value">5</span> <span class="unit">min</span></div>
+          <button class="stepper-btn" data-action="int-inc" aria-label="Increase interval">+</button>
+        </div>
+      </div>
+    </div>
+
+    <button id="btn-start" class="btn-primary">Begin</button>
+    <p class="hint">Tap the screen any time your mind wanders. Hold with two fingers to end early.</p>
+  </section>
+
+  <!-- COUNTDOWN SCREEN -->
+  <section id="screen-countdown" class="screen">
+    <p class="countdown-label">Settle in…</p>
+    <div id="countdown-number">15</div>
+    <p class="countdown-sub">The bell will ring to begin</p>
+  </section>
+
+  <!-- SESSION SCREEN -->
+  <section id="screen-session" class="screen">
+    <div class="session-hud">
+      <div class="session-time" id="session-time">00:00</div>
+      <div class="session-divider">/</div>
+      <div class="session-total" id="session-total">10:00</div>
+    </div>
+    <div class="session-count">
+      <span id="session-touches">0</span>
+      <span class="session-count-label">returns</span>
+    </div>
+    <div id="tap-ripple-layer"></div>
+    <p id="session-instructions" class="session-instructions">Tap anywhere when your mind wanders.<br>Hold with two fingers to end.</p>
+    <div id="hold-progress" class="hold-progress"><div id="hold-progress-fill" class="hold-progress-fill"></div></div>
+  </section>
+
+  <!-- SUMMARY SCREEN -->
+  <section id="screen-summary" class="screen">
+    <h2 class="summary-title">Session complete</h2>
+    <div class="summary-stats">
+      <div class="stat">
+        <div class="stat-value" id="summary-duration">10:00</div>
+        <div class="stat-label">meditated</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="summary-touches">0</div>
+        <div class="stat-label">returns to focus</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="summary-avg">—</div>
+        <div class="stat-label">avg. between returns</div>
+      </div>
+    </div>
+    <div class="timeline" id="summary-timeline" aria-label="Timeline of returns"></div>
+    <button id="btn-new-session" class="btn-primary">New session</button>
+    <button id="btn-view-history" class="btn-secondary">View history</button>
+  </section>
+
+  <!-- HISTORY SCREEN -->
+  <section id="screen-history" class="screen">
+    <header class="setup-header">
+      <button id="btn-history-back" class="icon-btn" aria-label="Back">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20z"/></svg>
+      </button>
+      <h1>History</h1>
+      <button id="btn-clear-history" class="icon-btn" aria-label="Clear history">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M6 7h12l-1 13H7L6 7Zm3-4h6l1 2H8l1-2Zm-4 3h14v1H5V6Z"/></svg>
+      </button>
+    </header>
+    <div id="history-empty" class="history-empty" hidden>
+      <p>No sessions yet.<br>Your completed sessions will appear here.</p>
+    </div>
+
+    <div id="history-scroll" class="history-scroll" hidden>
+      <div class="streak-card">
+        <div class="streak-value" id="streak-value">0</div>
+        <div class="streak-label">day streak</div>
+      </div>
+
+      <div class="hist-section">
+        <h3>Calendar</h3>
+        <div class="calendar-nav">
+          <button id="cal-prev" class="cal-nav-btn" aria-label="Previous month">‹</button>
+          <div id="cal-month-label">—</div>
+          <button id="cal-next" class="cal-nav-btn" aria-label="Next month">›</button>
+        </div>
+        <div class="calendar-grid" id="calendar-grid"></div>
+      </div>
+
+      <div class="hist-section">
+        <h3>Session duration</h3>
+        <div class="chart-scroll" id="chart-duration"></div>
+      </div>
+
+      <div class="hist-section">
+        <h3>Returns per session</h3>
+        <div class="chart-scroll" id="chart-returns"></div>
+      </div>
+
+      <div class="hist-section">
+        <h3>Returns per minute</h3>
+        <div class="chart-scroll" id="chart-rpm"></div>
+      </div>
+
+      <div class="hist-section">
+        <h3>Avg. time between returns</h3>
+        <div class="chart-scroll" id="chart-avg-gap"></div>
+      </div>
+
+      <div class="hist-section">
+        <h3>Longest stretch of focus</h3>
+        <div class="chart-scroll" id="chart-max-gap"></div>
+      </div>
+
+      <div class="hist-section">
+        <h3>Sessions</h3>
+        <ul id="history-list" class="history-list"></ul>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
